@@ -180,7 +180,9 @@ export class SearchFormImpl extends React.PureComponent {
             props={{
               disabled,
               clearable: false,
-              options: services.map(v => ({ label: v.name, value: v.name })),
+              options: services
+                .map(v => ({ label: v.name, value: v.name }))
+                .concat([{ label: 'All', value: 'any' }]),
               required: true,
             }}
           />
