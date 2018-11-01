@@ -15,5 +15,6 @@
 export const DEFAULT_OPERATION = 'all';
 export const DEFAULT_LOOKBACK = '1h';
 export const DEFAULT_LIMIT = 20;
+export const ELASTIC_SPAN_STORAGE_TYPE = 'elasticsearch';
 
 export const FORM_CHANGE_ACTION_TYPE = '@@redux-form/CHANGE';

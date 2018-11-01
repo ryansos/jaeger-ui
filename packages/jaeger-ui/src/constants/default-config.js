@@ -29,6 +29,7 @@ export default deepFreeze(
         gaID: null,
         trackErrors: true,
       },
+      spanStorageType: 'elasticsearch',
       menu: [
         {
           label: 'About Jaeger',

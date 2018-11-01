@@ -31,7 +31,12 @@ import VirtSelect from '../common/VirtSelect';
 import * as jaegerApiActions from '../../actions/jaeger-api';
 import { formatDate, formatTime } from '../../utils/date';
 import reduxFormFieldAdapter from '../../utils/redux-form-field-adapter';
-import { DEFAULT_OPERATION, DEFAULT_LIMIT, DEFAULT_LOOKBACK } from '../../constants/search-form';
+import {
+  DEFAULT_OPERATION,
+  DEFAULT_LIMIT,
+  DEFAULT_LOOKBACK,
+  ELASTIC_SPAN_STORAGE_TYPE,
+} from '../../constants/search-form';
 
 import './SearchForm.css';
 
@@ -164,6 +169,11 @@ export class SearchFormImpl extends React.PureComponent {
     const opsForSvc = (selectedServicePayload && selectedServicePayload.operations) || [];
     const noSelectedService = selectedService === '-' || !selectedService;
     const tz = selectedLookback === 'custom' ? new Date().toTimeString().replace(/^.*?GMT/, 'UTC') : null;
+    if (this.state.config.spanStorageType === ELASTIC_SPAN_STORAGE_TYPE) {
+      services.concat({
+        name: 'any',
+      });
+    }
     return (
       <Form layout="vertical" onSubmit={handleSubmit}>
         <FormItem
@@ -180,9 +190,7 @@ export class SearchFormImpl extends React.PureComponent {
             props={{
               disabled,
               clearable: false,
-              options: services
-                .map(v => ({ label: v.name, value: v.name }))
-                .concat([{ label: 'All', value: 'any' }]),
+              options: services.map(v => ({ label: v.name, value: v.name })),
               required: true,
             }}
           />
