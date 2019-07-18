@@ -77,12 +77,13 @@ export const DEFAULT_DEPENDENCY_LOOKBACK = moment.duration(1, 'weeks').asMillise
 const JaegerAPI = {
   apiRoot: DEFAULT_API_ROOT,
   fetchTrace(id) {
-    return getJSON(`${this.apiRoot}traces/${id}`);
+    return getJSON(`${this.apiRoot}traces/${id}`, {raw:true});
   },
   archiveTrace(id) {
     return getJSON(`${this.apiRoot}archive/${id}`, { method: 'POST' });
   },
   searchTraces(query) {
+    query['raw'] = true;
     return getJSON(`${this.apiRoot}traces`, { query });
   },
   fetchServices() {

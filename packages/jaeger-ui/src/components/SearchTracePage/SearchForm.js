@@ -169,11 +169,6 @@ export class SearchFormImpl extends React.PureComponent {
     const opsForSvc = (selectedServicePayload && selectedServicePayload.operations) || [];
     const noSelectedService = selectedService === '-' || !selectedService;
     const tz = selectedLookback === 'custom' ? new Date().toTimeString().replace(/^.*?GMT/, 'UTC') : null;
-    if (this.state.config.spanStorageType === ELASTIC_SPAN_STORAGE_TYPE) {
-      services.concat({
-        name: 'any',
-      });
-    }
     return (
       <Form layout="vertical" onSubmit={handleSubmit}>
         <FormItem
@@ -190,7 +185,9 @@ export class SearchFormImpl extends React.PureComponent {
             props={{
               disabled,
               clearable: false,
-              options: services.map(v => ({ label: v.name, value: v.name })),
+              options: services
+                .map(v => ({ label: v.name, value: v.name }))
+                .concat([{ label: 'All', value: 'any' }]),
               required: true,
             }}
           />
