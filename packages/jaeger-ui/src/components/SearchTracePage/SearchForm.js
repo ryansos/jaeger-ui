@@ -43,9 +43,13 @@ import './SearchForm.css';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-const AdaptedInput = reduxFormFieldAdapter(Input);
-const AdaptedSelect = reduxFormFieldAdapter(Select);
-const AdaptedVirtualSelect = reduxFormFieldAdapter(VirtSelect, option => (option ? option.value : null));
+const AdaptedInput = reduxFormFieldAdapter({ AntInputComponent: Input });
+const AdaptedSelect = reduxFormFieldAdapter({ AntInputComponent: Select });
+const AdaptedVirtualSelect = reduxFormFieldAdapter({
+  AntInputComponent: VirtSelect,
+  onChangeAdapter: option => (option ? option.value : null),
+});
+const ValidatedAdaptedInput = reduxFormFieldAdapter({ AntInputComponent: Input, isValidatedInput: true });
 
 export function getUnixTimeStampInMSFromForm({ startDate, startDateTime, endDate, endDateTime }) {
   const start = `${startDate} ${startDateTime}`;
@@ -77,6 +81,17 @@ export function traceIDsToQuery(traceIDs) {
     return null;
   }
   return traceIDs.split(',');
+}
+
+export const placeholderDurationFields = 'e.g. 1.2s, 100ms, 500us';
+export function validateDurationFields(value) {
+  if (!value) return undefined;
+  return /\d[\d\\.]*(us|ms|s|m|h)$/.test(value)
+    ? undefined
+    : {
+        content: `Please enter a number followed by a duration unit, ${placeholderDurationFields}`,
+        title: 'Please match the requested format.',
+      };
 }
 
 export function convertQueryParamsToFormDates({ start, end }) {
@@ -160,6 +175,7 @@ export class SearchFormImpl extends React.PureComponent {
   render() {
     const {
       handleSubmit,
+      invalid,
       selectedLookback,
       selectedService = '-',
       services,
@@ -329,14 +345,21 @@ export class SearchFormImpl extends React.PureComponent {
         <FormItem label="Min Duration">
           <Field
             name="minDuration"
-            component={AdaptedInput}
-            placeholder="e.g. 1.2s, 100ms, 500us"
+            component={ValidatedAdaptedInput}
+            placeholder={placeholderDurationFields}
             props={{ disabled }}
+            validate={validateDurationFields}
           />
         </FormItem>
 
         <FormItem label="Max Duration">
-          <Field name="maxDuration" component={AdaptedInput} placeholder="e.g. 1.1s" props={{ disabled }} />
+          <Field
+            name="maxDuration"
+            component={ValidatedAdaptedInput}
+            placeholder={placeholderDurationFields}
+            props={{ disabled }}
+            validate={validateDurationFields}
+          />
         </FormItem>
 
         <FormItem label="Limit Results">
@@ -349,7 +372,11 @@ export class SearchFormImpl extends React.PureComponent {
           />
         </FormItem>
 
-        <Button htmlType="submit" disabled={disabled || noSelectedService} data-test={markers.SUBMIT_BTN}>
+        <Button
+          htmlType="submit"
+          disabled={disabled || noSelectedService || invalid}
+          data-test={markers.SUBMIT_BTN}
+        >
           Find Traces
         </Button>
       </Form>
@@ -359,6 +386,7 @@ export class SearchFormImpl extends React.PureComponent {
 
 SearchFormImpl.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
+  invalid: PropTypes.bool,
   submitting: PropTypes.bool,
   services: PropTypes.arrayOf(
     PropTypes.shape({
@@ -371,6 +399,7 @@ SearchFormImpl.propTypes = {
 };
 
 SearchFormImpl.defaultProps = {
+  invalid: false,
   services: [],
   submitting: false,
   selectedService: null,

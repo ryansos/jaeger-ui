@@ -34,19 +34,23 @@ type Props = {
   isInDiffCohort: boolean,
   linkTo: ?string,
   state: ?FetchedState,
+  targetBlank?: boolean,
   toggleComparison: (string, boolean) => void,
   traceID: string,
   traceName: string,
+  disableComparision?: boolean,
 };
 
 export default class ResultItemTitle extends React.PureComponent<Props> {
   props: Props;
 
   static defaultProps = {
+    disableComparision: false,
     durationPercent: 0,
     error: undefined,
-    state: fetchedState.DONE,
     linkTo: null,
+    targetBlank: false,
+    state: fetchedState.DONE,
   };
 
   toggleComparison = () => {
@@ -56,30 +60,39 @@ export default class ResultItemTitle extends React.PureComponent<Props> {
 
   render() {
     const {
+      disableComparision,
       duration,
       durationPercent,
       error,
       isInDiffCohort,
       linkTo,
       state,
+      targetBlank,
       traceID,
       traceName,
     } = this.props;
+    // Use a div when the ResultItemTitle doesn't link to anything
     let WrapperComponent = 'div';
     const wrapperProps: { [string]: string } = { className: 'ResultItemTitle--item ub-flex-auto' };
     if (linkTo) {
       WrapperComponent = Link;
       wrapperProps.to = linkTo;
+      if (targetBlank) {
+        wrapperProps.target = '_blank';
+        wrapperProps.rel = 'noopener noreferrer';
+      }
     }
     const isErred = state === fetchedState.ERROR;
     return (
       <div className="ResultItemTitle">
-        <Checkbox
-          className="ResultItemTitle--item ub-flex-none"
-          checked={!isErred && isInDiffCohort}
-          disabled={isErred}
-          onChange={this.toggleComparison}
-        />
+        {!disableComparision && (
+          <Checkbox
+            className="ResultItemTitle--item ub-flex-none"
+            checked={!isErred && isInDiffCohort}
+            disabled={isErred}
+            onChange={this.toggleComparison}
+          />
+        )}
         <WrapperComponent {...wrapperProps}>
           <span className="ResultItemTitle--durationBar" style={{ width: `${durationPercent}%` }} />
           {duration != null && <span className="ub-right ub-relative">{formatDuration(duration)}</span>}

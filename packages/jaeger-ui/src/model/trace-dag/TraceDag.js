@@ -98,6 +98,7 @@ export default class TraceDag<T = void> {
   _addDenseSpan(spanID: string, parentNodeID?: ?NodeID, data: T) {
     const denseSpan = this.denseTrace && this.denseTrace.denseSpansMap.get(spanID);
     if (!denseSpan) {
+      // eslint-disable-next-line no-console
       console.warn(`Missing dense span: ${spanID}`);
       return;
     }
@@ -106,6 +107,7 @@ export default class TraceDag<T = void> {
     if (!skipToChild) {
       const node = this._getDagNode(service, operation, children.size > 0, parentNodeID, data);
       node.count++;
+      node.addMember(denseSpan);
       nodeID = node.id;
     } else {
       nodeID = parentNodeID;

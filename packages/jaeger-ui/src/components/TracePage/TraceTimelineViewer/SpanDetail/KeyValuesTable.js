@@ -17,26 +17,30 @@
 import * as React from 'react';
 import jsonMarkup from 'json-markup';
 import { Dropdown, Icon, Menu } from 'antd';
+
+import CopyIcon from '../../../common/CopyIcon';
+
 import type { KeyValuePair, Link } from '../../../../types/trace';
 
 import './KeyValuesTable.css';
 
 function parseIfJson(value) {
   try {
-    const data = JSON.parse(value);
-    if (data && typeof data === 'object') {
-      return data;
-    }
+    return JSON.parse(value);
     // eslint-disable-next-line no-empty
   } catch (_) {}
   return value;
 }
 
-const LinkValue = (props: { href: string, title?: string, children: React.Node }) => (
+export const LinkValue = (props: { href: string, title?: string, children: React.Node }) => (
   <a href={props.href} title={props.title} target="_blank" rel="noopener noreferrer">
     {props.children} <Icon className="KeyValueTable--linkIcon" type="export" />
   </a>
 );
+
+LinkValue.defaultProps = {
+  title: '',
+};
 
 const linkValueList = (links: Link[]) => (
   <Menu>
@@ -93,9 +97,16 @@ export default function KeyValuesTable(props: KeyValuesTableProps) {
             return (
               // `i` is necessary in the key because row.key can repeat
               // eslint-disable-next-line react/no-array-index-key
-              <tr key={`${row.key}-${i}`}>
+              <tr className="KeyValueTable--row" key={`${row.key}-${i}`}>
                 <td className="KeyValueTable--keyColumn">{row.key}</td>
                 <td>{valueMarkup}</td>
+                <td className="KeyValueTable--copyColumn">
+                  <CopyIcon
+                    className="KeyValueTable--copyIcon"
+                    copyText={JSON.stringify(row, null, 2)}
+                    tooltipTitle="Copy JSON"
+                  />
+                </td>
               </tr>
             );
           })}
@@ -104,5 +115,3 @@ export default function KeyValuesTable(props: KeyValuesTableProps) {
     </div>
   );
 }
-
-KeyValuesTable.LinkValue = LinkValue;
